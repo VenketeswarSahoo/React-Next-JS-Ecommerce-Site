@@ -1,0 +1,97 @@
+--First complete your all frontend work.
+--Go to "Render.com" and create your account.
+--Then choose new database.
+--Then choose postgres. [we use postgres to store our database]
+
+[-------Why we create a database ? --------
+->If we dont create a database then deployment time we re-enter our products to deploy our project.]
+
+--Then install strapi using this command "npx create-strapi-app@latest ."
+--Here "." is used to create strapi folder inside our server. We don't want any external folder there.
+--Then Choose 
+    1. Custom (manual settings)
+    2. JavaScript
+    3. postgres
+    4. ecommerce_tni0 --> [This is use database name shown in the render website.]
+    5. copy your host [for example:- postgres://ecommerce_tni0_user:vOVEhLqAi7Zo2f8nIDzWWxQUnEhD78qC@dpg-ck7bnr7sasqs73f3d4c0-a.singapore-postgres.render.com/ecommerce_tni0]
+    6. only you have to enter this url -> dpg-ck7bnr7sasqs73f3d4c0-a.singapore-postgres.render.com [which is cut from abobe url]
+    7. 5432 --> [This is your port number]
+    8. ecommerce_tni0_user --> [This is your username]
+    9. enter your password which is shown in render website [for example:  Password: ********************************]
+    10. Enable SSL connection: Yes
+
+--Then start strapi using this command "npm run develop".
+--Then go to strapi admin pannel " http://localhost:1337/admin" where you have to create your strapi account.
+--Then go to "https://cloudinary.com"
+--Create a account there.
+--Comeback to strapi and go to marketplace and search a provider "cloudinary"
+--Copy the install code [ npm install @strapi/provider-upload-cloudinary ] and comeback to vscode and install cloudinary. 
+--Then go to browser and search "strapi cloudinary".
+--After that follow these steps:
+    1. Copy step-2 code and create a "./config/plugins.js" file then paste it.
+    2. Copy the step-4 code. Then go to "./config/middlewares.js" and replace "strapi::security" to the step-2 code.
+    3. Copy the stpe-2 second code and paste it insite the ".env" file.
+    4. Go to "strapi cloudinary" website and copy the name, key and password and replace these inside the ".env" file.
+
+--Then add some images inside the strapi website to check connection is done or not.
+
+--Then create a collection inside "content type builder". [ex:- product, collection].
+--Then go to "content maneger" and add content.
+--Next Go API token.
+--Create a token. [f39e3ce000ea4e75c6e441f9a7a441aeb066484b99c601133821d9b75c9fba778245dec866db13ae195a480bdbcfe08ce199516f47f9d6148f10209e762c26cd38f133c59c2e5c91418e3a029ef60a755189e1189f039aec0637b71b0b901ebf846dfc9a8dfa99c75eab572fb33454b9b430e6fa27d01b984107cd0d124b5bb2]
+[-> You can simply check your API in the "thunder client" by follwing steps:
+    1. Send this"http://localhost:1337/api/products".
+    2. Go to "auth/bearer" and put your API-token.
+    3. Now you can see your data in json file.
+    4. Send this "http://localhost:1337/api/products?populate=*". If you want to see your data with your image detail.
+    5. You can send this "http://localhost:1337/api/categories?populate=*".
+]
+--Next go to client folder.
+--Create a ".env" file.
+--Write this [ NEXT_PUBLIC_STRAPI_API_TOKEN=f39e3ce000ea4e75c6e441f9a7a441aeb066484b99c601133821d9b75c9fba778245dec866db13ae195a480bdbcfe08ce199516f47f9d6148f10209e762c26cd38f133c59c2e5c91418e3a029ef60a755189e1189f039aec0637b71b0b901ebf846dfc9a8dfa99c75eab572fb33454b9b430e6fa27d01b984107cd0d124b5bb2 ]
+--Then create a "utils" folder.
+--Inside the "utils" folder create a "urls.js" file.
+--Write this: [  export const STRAPI_API_TOKEN = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+
+                export const API_URL =
+                process.env.NEXT_PUBLIC_STRAPI_API_TOKEN || "http://localhost:1337";
+             ]
+
+--Next create a "api.js" file inside the "utils" and write this:
+        [
+            import { API_URL, STRAPI_API_TOKEN } from "./urls";
+
+            export const fetchDataFromApi = async endpoint => {
+            const options = {
+                method: "GET",
+                headers: {
+                Authorization: "Bearer " + STRAPI_API_TOKEN
+                }
+            };
+
+            const res = await fetch(`${API_URL}${endpoint}`, options);
+            const data = await res.json();
+
+            return data;
+            };
+        ]
+
+--Do your backend work.
+--Problem I have faced that : 
+    1. Client side rendering succesfull but server side rendering unsuccesfull 🤔
+    2. Images from cloudinary don't fetch. 🙂
+        💡solution:- add these in "next.config.js"
+                    [
+                        /** @type {import('next').NextConfig} */
+                        const nextConfig = {
+                        reactStrictMode: true,
+                        eslint: {
+                            ignoreDuringBuilds: true
+                        },
+                        images: {
+                            domains: ["res.cloudinary.com"]
+                        }
+                        };
+
+                        module.exports = nextConfig;
+                    ]
